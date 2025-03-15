@@ -5,6 +5,7 @@ from Crypto.Util.Padding import pad, unpad
 from Crypto.Random import get_random_bytes
 import hashlib
 import random
+import threading
 
 # Configuration
 FLAG = "expX{Y0u_Ne3d_Pr0f3ss0r_L3v3l_Crypt0_Sk1ll5!}"
@@ -90,12 +91,13 @@ if __name__ == "__main__":
     server.bind((HOST, PORT))
     server.listen(5)
     print(f"Listening on {HOST}:{PORT}...")
-    
+
     while True:
         try:
             conn, addr = server.accept()
             print(f"New connection from {addr}")
-            handle_client(conn)
-            conn.close()
+            # Create a new thread for each client connection
+            client_thread = threading.Thread(target=handle_client, args=(conn,), daemon=True)
+            client_thread.start()
         except Exception as e:
             print(f"Server error: {e}")
